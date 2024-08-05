@@ -1,16 +1,21 @@
 .App {
-  text-align: center;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  background-color: #282c34;
   color: white;
+
+  .btn {
+    width: 100px;
+    height: 56px;
+    background-color: #fff;
+  }
+}
+
+.App-header {
+  font-size: calc(10px + 2vmin);
 }
 
 .App-link {
