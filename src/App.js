@@ -8,22 +8,20 @@ function App() {
   
   const db = getFirestore();
 
+  
   const fetchData = async () => {
     const qs = await getDocs(collection(db, 'stuff'));
     const res = [];
     qs.forEach((doc) => {
-      console.log(doc.data());
       res.push(doc.data());
     });
-    setData(res);
-    console.log('data', data);
+    if (res.length) {
+      setData(res);
+      console.log('data', data);
+    };
   };
-
   useEffect(() => {
-    // Initialize the Firebase database with the provided configuration
-
-    // Fetch data when the component mounts
-    // fetchData();
+    fetchData();    
   }, []);
 
   return (
