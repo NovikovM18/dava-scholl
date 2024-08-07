@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import '../firebaseConfig';
-import { getDocs, collection, getFirestore, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { getDocs, collection, getFirestore, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import Button from 'react-bootstrap/Button';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
@@ -8,13 +8,15 @@ import Table from 'react-bootstrap/Table';
 import Modal from 'react-bootstrap/Modal';
 
 export default function Stuff() {
+  const db = getFirestore();
   const [stuff, setData] = useState([]);
   const [name, setName] = useState('');
-  const [amount, setAmount] = useState(0);
-  const [price, setPrice] = useState(0);
+  const [amount, setAmount] = useState('');
+  const [price, setPrice] = useState('');
   const [require, setRequire] = useState(false);
   const [show, setShow] = useState(false);
-  const db = getFirestore();
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [sum, setSum] = useState(null);
 
 
   useEffect(() => {
@@ -25,15 +27,19 @@ export default function Stuff() {
   const fetchStuff = async () => {
     const qs = await getDocs(collection(db, 'stuff'));
     const res = [];
+    let resSum = 0;
     qs.forEach((doc) => {
       let item = doc.data();
       item['id'] = doc.id;
       res.push(item);
+      let resItemSum = item.amount * item.price;
+      resSum += resItemSum;
     });
     if (res.length) {
       setData(res);
-      console.log('stuff', stuff);
+      setSum(resSum);
     };
+
   };
   
   const handleChangeName = (event) => {
@@ -51,51 +57,77 @@ export default function Stuff() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const newItem = {
-      name: name,
-      amount: amount,
-      price: price,
-      require: require
-    };
-    (async () => {   
-      try {
-        await addDoc(collection(db, "stuff"), newItem);
-        event.target.reset();
-        resForm();
-        handleClose();
-        fetchStuff();
-      } catch (e) {
-        console.error("Error adding item");
-      }
-    })();
+    if (selectedItem) {
+      (async () => {   
+        try {
+          const docRef = doc(db, 'stuff', selectedItem.id)
+          console.log('docRef', docRef);
+          
+          await updateDoc(docRef, {
+            name: name,
+            amount: amount,
+            price: price,
+            require: require
+          });
+          handleClose();
+          fetchStuff();
+        } catch (e) {
+          console.error("Error adding item");
+        }
+      })();
+    } else {
+      const newItem = {
+        name: name,
+        amount: amount,
+        price: price,
+        require: require
+      };
+      (async () => {   
+        try {
+          await addDoc(collection(db, "stuff"), newItem);
+          handleClose();
+          fetchStuff();
+        } catch (e) {
+          console.error("Error adding item");
+        }
+      })();
+    }
   };
   
   const resForm = () => {
     setName('');
-    setAmount(0);
-    setPrice(0);
+    setAmount('');
+    setPrice('');
     setRequire(false);
   };
 
   const selectItem = (item) => {
-    console.log(item);
-    deleteItem(item.id)
+    setSelectedItem(item);
+    setName(item.name);
+    setAmount(item.amount);
+    setPrice(item.price);
+    setRequire(item.require);
+    handleShow();
   }
   
-  const deleteItem = async (id) => {
+  const deleteItem = async () => {
     try {
-      const docRef = doc(db, 'stuff', id)
-      await deleteDoc(docRef)
+      const docRef = doc(db, 'stuff', selectedItem.id)
+      await deleteDoc(docRef);
+      handleClose();
       fetchStuff();
     } catch (e) {
       console.error("Error adding item");
     }
   }
 
-
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false);
+    setSelectedItem(null);
+    resForm();
+  };
   const handleShow = () => setShow(true);
-  
+
 
   return (
     <div className='page stuff'>
@@ -113,6 +145,7 @@ export default function Stuff() {
             <th>amount</th>
             <th>price</th>
             <th>require</th>
+            <th>total</th>
           </tr>
         </thead>
         <tbody>
@@ -123,8 +156,14 @@ export default function Stuff() {
               <td>{ item.amount }</td>
               <td>{ item.price }</td>
               <td>{ item.require ? 'true' : 'false' }</td>
+              <td>{ item.amount * item.price }</td>
             </tr>
            ))}
+
+           <tr>
+            <td colSpan={5}>total</td>
+            <td>{ sum }</td>
+           </tr>
         </tbody>
       </Table>
       
@@ -136,43 +175,42 @@ export default function Stuff() {
           </Modal.Header>
 
           <Modal.Body className="itemModal_body">
-              <FloatingLabel controlId="name" label="name">
-                <Form.Control type="text" placeholder="" onChange={handleChangeName} />
-              </FloatingLabel>
+            <FloatingLabel controlId="name" label="name">
+              <Form.Control value={name} type="text" placeholder="" onChange={handleChangeName} />
+            </FloatingLabel>
 
-              <FloatingLabel controlId="amount" label="amount">
-                <Form.Control type="number" min={0} placeholder="" onChange={handleChangeAmount} />
-              </FloatingLabel>
+            <FloatingLabel controlId="amount" label="amount">
+              <Form.Control value={amount} type="number" min={0} placeholder="" onChange={handleChangeAmount} />
+            </FloatingLabel>
 
-              <FloatingLabel controlId="price" label="price">
-                <Form.Control type="number" min={0} placeholder="" onChange={handleChangePrice} />
-              </FloatingLabel>
+            <FloatingLabel controlId="price" label="price">
+              <Form.Control value={price} type="number" min={0} placeholder="" onChange={handleChangePrice} />
+            </FloatingLabel>
 
-              <Form.Check
-                type="switch"
-                id="require"
-                label="require"
-                onChange={handleChangeRequire} 
-              />
-
-              <Button variant="primary" type="submit">
-                add
-              </Button>
+            <Form.Check
+              value={require}
+              type="switch"
+              id="require"
+              label="require"
+              onChange={handleChangeRequire} 
+            />
           </Modal.Body>
           
           <Modal.Footer className="itemModal_footer">
             <div className="left">
-              <Button variant="danger" onClick={handleClose}>
-                Delete
-              </Button>
+              { selectedItem && 
+                <Button variant="danger" onClick={deleteItem}>
+                  delete
+                </Button>
+              }
             </div>
 
             <div className="right">
               <Button variant="secondary" onClick={handleClose}>
-                Close
+                close
               </Button>
               <Button variant="primary" type="submit">
-                Save Changes
+                { selectedItem ? 'save changes' : 'add item' }
               </Button>
             </div>
           </Modal.Footer>

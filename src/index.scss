@@ -42,6 +42,10 @@ p, h1, h2, h3 {
 
   .table {
     margin-top: 24px;
+
+    tbody {
+      cursor: pointer;
+    }
   }
 
   
@@ -51,7 +55,15 @@ p, h1, h2, h3 {
 .itemModal {
 
   &_body {
-
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 12px;
+    
+    * {
+      width: 100%;
+    }
   }
 
   &_footer {
