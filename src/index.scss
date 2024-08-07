@@ -26,6 +26,19 @@ p, h1, h2, h3 {
   }
 }
 
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &_title {
+    font-size: 3rem;
+    font-weight: bold;
+    text-align: center;
+  }
+}
+
 .stuff {
   .add {
     margin-bottom: 48px;
