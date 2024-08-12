@@ -14,6 +14,7 @@ export default function Stuff() {
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('');
   const [require, setRequire] = useState(false);
+  const [ready, setReady] = useState(false);
   const [show, setShow] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [sum, setSum] = useState(null);
@@ -55,6 +56,40 @@ export default function Stuff() {
     setRequire(event.target.checked);
   };
 
+  const handleChangeReady = (event) => {
+    event.preventDefault();
+    if (selectedItem) {
+      
+      (async () => {   
+        try {
+          const docRef = doc(db, 'stuff', selectedItem.id)   
+            console.log({
+              name: name,
+              amount: amount,
+              price: price,
+              require: require,
+              ready: !ready
+            });
+            
+            let updItem = {
+              name: name,
+              amount: amount,
+              price: price,
+              require: require,
+              ready: !ready
+            }
+            await updateDoc(docRef, updItem);
+            setReady(!ready);
+            // setSelectedItem(updItem);
+          // handleClose();
+          fetchStuff();
+        } catch (e) {
+          console.error("Error edit item");
+        }
+      })();
+    }
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if (selectedItem) {
@@ -72,7 +107,7 @@ export default function Stuff() {
           handleClose();
           fetchStuff();
         } catch (e) {
-          console.error("Error adding item");
+          console.error("Error edit item");
         }
       })();
     } else {
@@ -107,6 +142,7 @@ export default function Stuff() {
     setAmount(item.amount);
     setPrice(item.price);
     setRequire(item.require);
+    setReady(item.ready);
     handleShow();
   }
   
@@ -126,6 +162,7 @@ export default function Stuff() {
     setSelectedItem(null);
     resForm();
   };
+
   const handleShow = () => setShow(true);
 
 
@@ -144,24 +181,24 @@ export default function Stuff() {
             <th>name</th>
             <th>amount</th>
             <th>price</th>
-            <th>require</th>
+            {/* <th>require</th> */}
             <th>total</th>
           </tr>
         </thead>
         <tbody>
           {stuff.map((item, index) => (
-            <tr key={index} onClick={() => selectItem(item)}>
+            <tr key={index} onClick={() => selectItem(item)} className={item.ready ? 'ready' : ''}>
               <td>{ index +1 }</td>
               <td>{ item.name }</td>
               <td>{ item.amount }</td>
               <td>{ item.price }</td>
-              <td>{ item.require ? 'true' : 'false' }</td>
+              {/* <td>{ item.require ? 'true' : 'false' }</td> */}
               <td>{ item.amount * item.price }</td>
             </tr>
            ))}
 
            <tr>
-            <td colSpan={5}>total</td>
+            <td colSpan={4}>total</td>
             <td>{ sum }</td>
            </tr>
         </tbody>
@@ -176,24 +213,25 @@ export default function Stuff() {
 
           <Modal.Body className="itemModal_body">
             <FloatingLabel controlId="name" label="name">
-              <Form.Control value={name} type="text" placeholder="" onChange={handleChangeName} />
+              <Form.Control disabled={ready} value={name} type="text" placeholder="" onChange={handleChangeName} />
             </FloatingLabel>
 
             <FloatingLabel controlId="amount" label="amount">
-              <Form.Control value={amount} type="number" min={0} placeholder="" onChange={handleChangeAmount} />
+              <Form.Control disabled={ready} value={amount} type="number" min={0} placeholder="" onChange={handleChangeAmount} />
             </FloatingLabel>
 
             <FloatingLabel controlId="price" label="price">
-              <Form.Control value={price} type="number" min={0} placeholder="" onChange={handleChangePrice} />
+              <Form.Control disabled={ready} value={price} type="number" min={0} placeholder="" onChange={handleChangePrice} />
             </FloatingLabel>
 
-            <Form.Check
+            {/* <Form.Check
               value={require}
               type="switch"
               id="require"
               label="require"
               onChange={handleChangeRequire} 
-            />
+            /> */}
+
           </Modal.Body>
           
           <Modal.Footer className="itemModal_footer">
@@ -203,6 +241,12 @@ export default function Stuff() {
                   delete
                 </Button>
               }
+              { (selectedItem && !ready) &&
+                <Button variant="success" onClick={handleChangeReady}>ready</Button>
+              }
+              { (selectedItem && ready) &&
+                <Button variant="warning" onClick={handleChangeReady}>process</Button>
+              }
             </div>
 
             <div className="right">
@@ -210,7 +254,7 @@ export default function Stuff() {
                 close
               </Button>
               <Button variant="primary" type="submit">
-                { selectedItem ? 'save changes' : 'add item' }
+                { selectedItem ? 'save' : 'add' }
               </Button>
             </div>
           </Modal.Footer>

@@ -8,6 +8,7 @@ export default function Home() {
   const [seconds, setSeconds] = useState('00');
 
   useEffect(() => {
+    updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => {
       clearInterval(interval);

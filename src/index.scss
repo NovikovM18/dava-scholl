@@ -58,6 +58,12 @@ p, h1, h2, h3 {
 
     tbody {
       cursor: pointer;
+
+      .ready {
+        td {
+          background-color: #00ff2281;
+        }
+      }
     }
   }
 
@@ -81,11 +87,17 @@ p, h1, h2, h3 {
 
   &_footer {
     display: flex;
+    flex-wrap: nowrap;
     justify-content: space-between !important;
+
+    .left {
+      display: flex;
+      gap: 4px;
+    }
 
     .right {
       display: flex;
-      gap: 8px;
+      gap: 4px;
     }
   }
 }
