@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/dava-school/static/css/main.960ea692.css",
-    "main.js": "/dava-school/static/js/main.b0a50ef6.js",
+    "main.css": "/dava-school/static/css/main.182a581f.css",
+    "main.js": "/dava-school/static/js/main.c74e354d.js",
     "index.html": "/dava-school/index.html",
-    "main.960ea692.css.map": "/dava-school/static/css/main.960ea692.css.map",
-    "main.b0a50ef6.js.map": "/dava-school/static/js/main.b0a50ef6.js.map"
+    "main.182a581f.css.map": "/dava-school/static/css/main.182a581f.css.map",
+    "main.c74e354d.js.map": "/dava-school/static/js/main.c74e354d.js.map"
   },
   "entrypoints": [
-    "static/css/main.960ea692.css",
-    "static/js/main.b0a50ef6.js"
+    "static/css/main.182a581f.css",
+    "static/js/main.c74e354d.js"
   ]
 }
