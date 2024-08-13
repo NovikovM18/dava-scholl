@@ -4,8 +4,9 @@ import { getDocs, collection, getFirestore, addDoc, deleteDoc, doc, updateDoc } 
 import Button from 'react-bootstrap/Button';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
-import Table from 'react-bootstrap/Table';
 import Modal from 'react-bootstrap/Modal';
+import Badge from 'react-bootstrap/Badge';
+import ListGroup from 'react-bootstrap/ListGroup';
 
 export default function Stuff() {
   const db = getFirestore();
@@ -168,42 +169,40 @@ export default function Stuff() {
 
   return (
     <div className='page stuff'>
-      <h3 className="page_title">Stuff</h3>
-      <Button variant="primary" onClick={handleShow}>
-        add new Item
-      </Button>
 
+      <div className="stuff_header">
+        <div className="left">
+          <h3 className="page_title">Stuff</h3>
+          <Button variant="primary" onClick={handleShow}>
+            add new Item
+          </Button>
+        </div>
+        <div className="right">
+          <p>total</p>
+          <Badge className="total" bg="primary" pill>{ sum }</Badge>
+        </div>
+      </div>
 
-      <Table striped bordered hover responsive className="table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>name</th>
-            <th>amount</th>
-            <th>price</th>
-            {/* <th>require</th> */}
-            <th>total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stuff.map((item, index) => (
-            <tr key={index} onClick={() => selectItem(item)} className={item.ready ? 'ready' : ''}>
-              <td>{ index +1 }</td>
-              <td>{ item.name }</td>
-              <td>{ item.amount }</td>
-              <td>{ item.price }</td>
-              {/* <td>{ item.require ? 'true' : 'false' }</td> */}
-              <td>{ item.amount * item.price }</td>
-            </tr>
-           ))}
+      <ListGroup as="ol" numbered className="list">
+        {stuff.map((item, index) => (   
+          <ListGroup.Item
+            key={index} 
+            onClick={() => selectItem(item)} 
+            as="li"
+            className={item.ready ? 'list_item ready' : 'list_item'}
+          >
+            <div className="ms-2 me-auto name">
+              <div className="fw-bold">{ item.name }</div>
+            </div>
 
-           <tr>
-            <td colSpan={4}>total</td>
-            <td>{ sum }</td>
-           </tr>
-        </tbody>
-      </Table>
-      
+            <div className="nums">
+              <Badge className="data" bg="warning" pill>{ item.amount }</Badge>
+              <Badge className="data" bg="primary" pill>{ item.price }</Badge>
+              <Badge className="total" bg="primary" pill>{ item.amount * item.price }</Badge>
+            </div>
+          </ListGroup.Item>
+        ))}
+      </ListGroup>
 
       <Modal show={show} onHide={handleClose} className="itemModal">
         <Form className="form" onSubmit={handleSubmit}>
