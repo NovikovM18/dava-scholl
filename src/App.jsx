@@ -10,8 +10,6 @@ import Stuff from './pages/Stuff'
 import Other from './pages/Other'
 
 function App() {
-
-
   return (
     <div className="App">
       <header className="App_header">

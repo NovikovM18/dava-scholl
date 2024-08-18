@@ -7,13 +7,16 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Badge from 'react-bootstrap/Badge';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Spinner from 'react-bootstrap/Spinner';
 
 export default function Stuff() {
   const db = getFirestore();
+  const [loading, setLoading] = useState(false);
   const [stuff, setData] = useState([]);
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('');
+  const [market, setMarket] = useState('');
   const [require, setRequire] = useState(false);
   const [ready, setReady] = useState(false);
   const [show, setShow] = useState(false);
@@ -24,9 +27,9 @@ export default function Stuff() {
   useEffect(() => {
     fetchStuff();    
   }, []);
-  
 
   const fetchStuff = async () => {
+    setLoading(true);
     const qs = await getDocs(collection(db, 'stuff'));
     const res = [];
     let resSum = 0;
@@ -40,6 +43,9 @@ export default function Stuff() {
     if (res.length) {
       setData(res);
       setSum(resSum);
+      setLoading(false);
+    } else {
+      setLoading(false);
     };
 
   };
@@ -52,6 +58,9 @@ export default function Stuff() {
   };
   const handleChangePrice = (event) => {
     setPrice(event.target.value);
+  };
+  const handleChangeMarket = (event) => {
+    setMarket(event.target.value);
   };
   const handleChangeRequire = (event) => {
     setRequire(event.target.checked);
@@ -68,6 +77,7 @@ export default function Stuff() {
               name: name,
               amount: amount,
               price: price,
+              market: market,
               require: require,
               ready: !ready
             });
@@ -76,13 +86,12 @@ export default function Stuff() {
               name: name,
               amount: amount,
               price: price,
+              market: market,
               require: require,
               ready: !ready
             }
             await updateDoc(docRef, updItem);
             setReady(!ready);
-            // setSelectedItem(updItem);
-          // handleClose();
           fetchStuff();
         } catch (e) {
           console.error("Error edit item");
@@ -96,13 +105,12 @@ export default function Stuff() {
     if (selectedItem) {
       (async () => {   
         try {
-          const docRef = doc(db, 'stuff', selectedItem.id)
-          console.log('docRef', docRef);
-          
+          const docRef = doc(db, 'stuff', selectedItem.id)          
           await updateDoc(docRef, {
             name: name,
             amount: amount,
             price: price,
+            market: market,
             require: require
           });
           handleClose();
@@ -116,11 +124,12 @@ export default function Stuff() {
         name: name,
         amount: amount,
         price: price,
+        market: market,
         require: require
       };
       (async () => {   
         try {
-          await addDoc(collection(db, "stuff"), newItem);
+          await addDoc(collection(db, 'stuff'), newItem);
           handleClose();
           fetchStuff();
         } catch (e) {
@@ -134,14 +143,18 @@ export default function Stuff() {
     setName('');
     setAmount('');
     setPrice('');
+    setMarket('');
     setRequire(false);
   };
 
   const selectItem = (item) => {
+    console.log(item);
+    
     setSelectedItem(item);
     setName(item.name);
     setAmount(item.amount);
     setPrice(item.price);
+    setMarket(item.market);
     setRequire(item.require);
     setReady(item.ready);
     handleShow();
@@ -183,6 +196,13 @@ export default function Stuff() {
         </div>
       </div>
 
+    {loading &&
+      <div className="page_loader">
+        <Spinner animation="grow" variant="primary" className="spinner" />
+      </div>
+    }
+    
+    {!loading &&
       <ListGroup as="ol" numbered className="list">
         {stuff.map((item, index) => (   
           <ListGroup.Item
@@ -191,18 +211,30 @@ export default function Stuff() {
             as="li"
             className={item.ready ? 'list_item ready' : 'list_item'}
           >
-            <div className="ms-2 me-auto name">
-              <div className="fw-bold">{ item.name }</div>
+            <div className="content">
+              <div className="content_top">
+                <div className="ms-2 me-auto name">
+                  <div className="fw-bold">{ item.name }</div>
+                </div>
+
+                <div className="nums">
+                  <Badge className="data" bg="warning" pill>{ item.amount }</Badge>
+                  <Badge className="data" bg="primary" pill>{ item.price }</Badge>
+                  <Badge className="total" bg="primary" pill>{ item.amount * item.price }</Badge>
+                </div>
+              </div>
+
+              <div className="content_bot">
+                <div className="ms-2 me-auto market">
+                  <div>{ item.market }</div>
+                </div>
+              </div>
             </div>
 
-            <div className="nums">
-              <Badge className="data" bg="warning" pill>{ item.amount }</Badge>
-              <Badge className="data" bg="primary" pill>{ item.price }</Badge>
-              <Badge className="total" bg="primary" pill>{ item.amount * item.price }</Badge>
-            </div>
           </ListGroup.Item>
         ))}
       </ListGroup>
+    }
 
       <Modal show={show} onHide={handleClose} className="itemModal">
         <Form className="form" onSubmit={handleSubmit}>
@@ -223,14 +255,18 @@ export default function Stuff() {
               <Form.Control disabled={ready} value={price} type="number" min={0} placeholder="" onChange={handleChangePrice} />
             </FloatingLabel>
 
-            {/* <Form.Check
-              value={require}
+            <FloatingLabel controlId="market" label="market">
+              <Form.Control disabled={ready} value={market} type="text" placeholder="" onChange={handleChangeMarket} />
+            </FloatingLabel>
+
+            <Form.Check
+              disabled={ready}
               type="switch"
+              checked={require}
               id="require"
               label="require"
               onChange={handleChangeRequire} 
-            /> */}
-
+            />
           </Modal.Body>
           
           <Modal.Footer className="itemModal_footer">
