@@ -176,6 +176,127 @@ p, h1, h2, h3 {
   }
 }
 
+.clothing {
+
+  &_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .left {}
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      p {
+        margin: 0;
+        font-weight: bold;
+        font-size: 18px;
+      }
+      .total {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .add {
+    margin-bottom: 48px;
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      Button {
+        margin-top: 8px;
+      }
+    }
+  }
+
+  .list {
+    margin-top: 24px;
+    gap: 2px;
+
+    .ready {
+      background-color: #00ff2281;
+    }
+
+    &_item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      transition: all 333ms ease;
+      
+      &:hover {
+        background-color: #0d6dfd25;
+        transition: all 333ms ease;
+      }
+
+      .content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        &_top {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          .name {
+            width: 50%;
+          }
+    
+          .nums {
+            width: 25%;
+            min-width: max-content;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+    
+            @media (max-width: 500px) {
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+            }
+    
+    
+            .data {
+              font-size: 12px;
+            }
+    
+            .total {
+              font-size: 14px;
+            }
+          }
+  
+        }
+
+        &_bot {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+
+          .market {
+            color: #666;
+          }
+        }
+
+      }
+      
+    }
+  }
+}
+
 .itemModal {
   &_body {
     display: flex;

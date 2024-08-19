@@ -25,13 +25,16 @@
   }
 
   &__nav {
+    max-width: 100dvw;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-around;
+    gap: 8px;
+    overflow-x: auto;
 
     .link {
-      width: 112px;
+      // width: 112px;
       display: flex;
       flex-direction: row;
       align-items: center;

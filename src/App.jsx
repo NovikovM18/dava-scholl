@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import Home from './pages/Home'
 import Stuff from './pages/Stuff'
-import Other from './pages/Other'
+import Clothing from './pages/Clothing'
 
 function App() {
   return (
@@ -35,11 +35,11 @@ function App() {
           </NavLink >
           
           <NavLink 
-            to="/other"
+            to="/clothing"
             className="link"
             activeclassname="active"
           >
-            <span>other</span>
+            <span>clothing</span>
           </NavLink >
         </nav>
       </header>
@@ -48,7 +48,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/stuff" element={<Stuff />} />
-          <Route path="/other" element={<Other />} />
+          <Route path="/clothing" element={<Clothing />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>
