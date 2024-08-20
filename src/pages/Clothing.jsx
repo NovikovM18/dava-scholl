@@ -8,6 +8,7 @@ import Modal from 'react-bootstrap/Modal';
 import Badge from 'react-bootstrap/Badge';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Spinner from 'react-bootstrap/Spinner';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 export default function Clothing() {
   const db = getFirestore();
@@ -22,8 +23,9 @@ export default function Clothing() {
   const [show, setShow] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [sum, setSum] = useState(null);
+  const [proc, setProc] = useState(0);
 
-
+  
   useEffect(() => {
     fetchClothing();    
   }, []);
@@ -40,6 +42,15 @@ export default function Clothing() {
       let resItemSum = item.amount * item.price;
       resSum += resItemSum;
     });
+
+    let readyItems = res.filter((el) => el.ready)
+    if (readyItems.length) {
+      let procItems = (readyItems.length / res.length) * 100;
+      setProc(procItems);
+    } else {
+      setProc(0);
+    }
+
     if (res.length) {
       setData(res);
       setSum(resSum);
@@ -69,19 +80,9 @@ export default function Clothing() {
   const handleChangeReady = (event) => {
     event.preventDefault();
     if (selectedItem) {
-      
       (async () => {   
         try {
           const docRef = doc(db, 'clothing', selectedItem.id)   
-            console.log({
-              name: name,
-              amount: amount,
-              price: price,
-              market: market,
-              require: require,
-              ready: !ready
-            });
-            
             let updItem = {
               name: name,
               amount: amount,
@@ -147,9 +148,7 @@ export default function Clothing() {
     setRequire(false);
   };
 
-  const selectItem = (item) => {
-    console.log(item);
-    
+  const selectItem = (item) => {    
     setSelectedItem(item);
     setName(item.name);
     setAmount(item.amount);
@@ -203,37 +202,41 @@ export default function Clothing() {
     }
     
     {!loading &&
-      <ListGroup as="ol" numbered className="list">
-        {clothing.map((item, index) => (   
-          <ListGroup.Item
-            key={index} 
-            onClick={() => selectItem(item)} 
-            as="li"
-            className={item.ready ? 'list_item ready' : 'list_item'}
-          >
-            <div className="content">
-              <div className="content_top">
-                <div className="ms-2 me-auto name">
-                  <div className="fw-bold">{ item.name }</div>
+      <>
+        {proc > 0 && <ProgressBar now={proc} label={`${proc}%`} className="pbar" />}
+
+        <ListGroup as="ol" numbered className="list">
+          {clothing.map((item, index) => (   
+            <ListGroup.Item
+              key={index} 
+              onClick={() => selectItem(item)} 
+              as="li"
+              className={item.ready ? 'list_item ready' : 'list_item'}
+            >
+              <div className="content">
+                <div className="content_top">
+                  <div className="ms-2 me-auto name">
+                    <div className="fw-bold">{ item.name }</div>
+                  </div>
+
+                  <div className="nums">
+                    <Badge className="data" bg="warning" pill>{ item.amount }</Badge>
+                    <Badge className="data" bg="primary" pill>{ item.price }</Badge>
+                    <Badge className="total" bg="primary" pill>{ item.amount * item.price }</Badge>
+                  </div>
                 </div>
 
-                <div className="nums">
-                  <Badge className="data" bg="warning" pill>{ item.amount }</Badge>
-                  <Badge className="data" bg="primary" pill>{ item.price }</Badge>
-                  <Badge className="total" bg="primary" pill>{ item.amount * item.price }</Badge>
+                <div className="content_bot">
+                  <div className="ms-2 me-auto market">
+                    <div>{ item.market }</div>
+                  </div>
                 </div>
               </div>
 
-              <div className="content_bot">
-                <div className="ms-2 me-auto market">
-                  <div>{ item.market }</div>
-                </div>
-              </div>
-            </div>
-
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      </>
     }
 
       <Modal show={show} onHide={handleClose} className="itemModal">
